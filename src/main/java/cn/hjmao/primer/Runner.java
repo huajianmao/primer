@@ -2,25 +2,25 @@ package cn.hjmao.primer;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+
+import cn.hjmao.primer.io.Fasta;
 
 class Runner {
   public static void main(String[] args) {
+    // String fasta = "./data/small.fasta";
     // String fasta = "./data/test.fasta";
     String fasta = "./data/GRCh38_latest_genomic.fasta";
     // String fasta = "./data/sequences2021.09.30.fasta";
-    int k = 9;
-    int processes = -1;
+    int processes = 25;
 
     System.out.println("Load sequences from fasta file: " + fasta);
-    List<Seq> sequences = Seq.load(fasta);
+    List<Seq> sequences = Fasta.load(fasta);
     System.out.println(sequences.size() + " sequences loaded.");
 
-    Map<Integer, List<Integer>>[] index = KmerUtils.initIndex(k);
+    Map<Integer, List<Integer>>[] index = KmerUtils.initIndex();
 
-    KmerUtils.makeIndex(sequences, k, index, processes);
-    // KmerUtils.makeIndex(sequences, k, index);
+    KmerUtils.makeIndex(sequences, index, processes);
+    // KmerUtils.makeIndex(sequences, index);
 
     // for (int i = 0; i < index.length; i++) {
     //   if (index[i].size() == 0) {
