@@ -1,7 +1,5 @@
 gradle.properties
 
-build.gradle
-
 .vscode
 
 tmp
