@@ -2,65 +2,93 @@ package cn.hjmao.primer;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class KmerUtils {
-  private static final Character[] CHARS = {'A', 'G', 'C', 'T'};
+  private static final Character[] CHARS = {'A', 'C', 'G', 'T'};
   private static final Set<Character> ATCG = new HashSet<>(Arrays.asList(CHARS));
 
-  public static Map<String, List<Integer>> makeIndex(String reads, int k) {
-    Map<String, List<Integer>> index = new HashMap<>();
-    for (int i = 0; i < reads.length() - k + 1; i++) {
-      String kmer = reads.substring(i, i + k);
-      if (containsIllegalChar(kmer)) {
-        continue;
-      }
-      if (!index.containsKey(kmer)) {
-        index.put(kmer, new ArrayList<>());
-      }
-      index.get(kmer).add(i);
+  public static Map<Integer, List<Integer>>[] initIndex(int k) {
+    Map<Integer, List<Integer>>[] index = new ConcurrentHashMap[(int) Math.pow(4, k)];
+    for (int i = 0; i < index.length; i++) {
+      index[i] = new ConcurrentHashMap<>();
     }
-
     return index;
   }
 
-  public static Map<String, Map<String, List<Integer>>> makeIndex(List<Seq> seqs, int k) {
-    Map<String, Map<String, List<Integer>>> index = new HashMap<>();
-    for (int i = 0; i < seqs.size(); i++) {
-      if (i % 10 == 0) {
-        System.out.println("Processing sequence " + i + "...");
-      }
+  public static void makeIndex(List<Seq> sequences, int k, Map<Integer, List<Integer>>[] index, int processes) {
+    if (processes <= 0) {
+      processes = Runtime.getRuntime().availableProcessors();
+    }
 
-      Seq seq = seqs.get(i);
-      String sequence = seq.getReads().toString();
-      if (sequence == null || sequence.length() < k) {
+    ExecutorService executor = Executors.newFixedThreadPool(processes);
+    for (int i = 0; i < sequences.size(); i++) {
+      Seq seq = sequences.get(i);
+      executor.execute(new IndexThread(seq, k, index));
+    }
+    executor.shutdown();
+    while (!executor.isTerminated()) { }
+    System.out.println("Done indexing.");
+  }
+
+  public static void makeIndex(List<Seq> seqs, int k, Map<Integer, List<Integer>>[] result) {
+    for (int i = 0; i < seqs.size(); i++) {
+      makeIndex(seqs.get(i), k, result);
+    }
+  }
+
+  public static void makeIndex(Seq seq, int k, Map<Integer, List<Integer>>[] result) {
+    String sequence = seq.getReads().toString();
+    if (sequence == null || sequence.length() < k) {
+      return;
+    }
+
+    for (int position = 0; position < sequence.length() - k + 1; position++) {
+      String kmer = sequence.substring(position, position + k);
+
+      if (containsIllegalChar(kmer)) {
         continue;
       }
 
-      for (int position = 0; position < sequence.length() - k + 1; position++) {
-        String kmer = sequence.substring(position, position + k);
+      int index = kmer2int(kmer);
 
-        if (containsIllegalChar(kmer)) {
-          continue;
-        }
+      Map<Integer, List<Integer>> positions = result[index];
+      if (!positions.containsKey(seq.getOffset())) {
+        positions.put(seq.getOffset(), new ArrayList<>());
+      }
+      positions.get(seq.getOffset()).add(position);
+    }
+  }
 
-        if (!index.containsKey(kmer)) {
-          index.put(kmer, new HashMap<>());
-        }
-
-        Map<String, List<Integer>> positions = index.get(kmer);
-        if (!positions.containsKey(seq.getId())) {
-          positions.put(seq.getId(), new ArrayList<>());
-        }
-        positions.get(seq.getId()).add(position);
+  public static int kmer2int(String kmer) {
+    int value = 0;
+    for (int i = 0; i < kmer.length(); i++) {
+      value = (value << 2);
+      switch (kmer.charAt(i)) {
+        case 'A':
+          break;
+        case 'C':
+          value = value + 1;
+          break;
+        case 'G':
+          value = value + 2;
+          break;
+        case 'T':
+          value = value + 3;
+          break;
+        default:
+          System.out.println("Illegal character: " + kmer.charAt(i));
+          break;
       }
     }
 
-    return index;
+    return value;
   }
 
   private static boolean containsIllegalChar(String kmer) {

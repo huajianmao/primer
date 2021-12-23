@@ -18,6 +18,7 @@ import lombok.Setter;
 @Setter
 public class Seq {
   private String id;
+  private int index;
   private String desc;
   private int offset;
   private int lineBases = -1;
@@ -28,8 +29,9 @@ public class Seq {
 
   private static int CURRENT_POSITION = 0;
 
-  public Seq(String id, String desc, int offset) {
+  public Seq(String id, int index, String desc, int offset) {
     this.id = id;
+    this.index = index;
     this.desc = desc;
     this.offset = offset;
     this.reads = new StringBuilder();
@@ -54,7 +56,7 @@ public class Seq {
         if (!line.startsWith(">")) {
           continue;
         } else {
-          Seq seq = parseHeader(line);
+          Seq seq = parseHeader(line, count);
           sequences.add(seq);
           count = count + 1;
           break;
@@ -67,15 +69,17 @@ public class Seq {
           Seq seq = sequences.get(sequences.size() - 1);
           seq.append(line);
         } else {
+          Seq seq = parseHeader(line, count);
+          sequences.add(seq);
+
           count = count + 1;
           if (limit > 0 && count >= limit) {
             break;
           }
-          Seq seq = parseHeader(line);
-          sequences.add(seq);
         }
       }
       fr.close();
+
       return sequences;
     } catch (Exception e) {
       e.printStackTrace();
@@ -95,7 +99,7 @@ public class Seq {
     CURRENT_POSITION = CURRENT_POSITION + line.length() + Seq.NEW_LINE_WIDTH;
   }
 
-  private static Seq parseHeader(String header) {
+  private static Seq parseHeader(String header, int index) {
     int start = header.indexOf('>');
     int end = header.indexOf(' ');
 
@@ -109,6 +113,6 @@ public class Seq {
       desc = "";
     }
 
-    return new Seq(id, desc, CURRENT_POSITION);
+    return new Seq(id, index, desc, CURRENT_POSITION);
   }
 }
