@@ -46,7 +46,6 @@ public class Fasta {
           sb.append(line);
         } else {
           setReadsForLastSeq(sequences, sb);
-          sb.setLength(0); // clear StringBuilder
           Seq seq = parseHeader(line, count);
           sequences.add(seq);
 
@@ -97,6 +96,7 @@ public class Fasta {
     if (!sb.isEmpty() && sequences.size() > 0) {
       Seq seq = sequences.get(sequences.size() - 1);
       seq.setReads(getReadsAsBytes(sb.toString()));
+      sb.setLength(0); // clear StringBuilder
     }
   }
 

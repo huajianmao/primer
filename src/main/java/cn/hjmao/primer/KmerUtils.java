@@ -45,7 +45,39 @@ public class KmerUtils {
     if (sequence.length < KmerUtils.K) {
       return;
     }
+    int offset = seq.getOffset();
 
+    int pos = 0;
+    int k = 0;
+    int index = 0;
+
+    while (pos < sequence.length - k) {
+      while (k < KmerUtils.K && pos < sequence.length - k) {
+        if (sequence[pos + k] < 0) {
+          pos = pos + k + 1;
+          index = 0;
+          k = 0;
+          break;
+        } else {
+          index = (index << 2) + sequence[pos + k];
+          k = k + 1;
+        }
+      }
+      if (k == KmerUtils.K) {
+        List<Integer> positions = result[index].get(offset);
+        if (positions == null) {
+          positions = new ArrayList<>();
+          result[index].put(offset, positions);
+	}
+        positions.add(pos);
+
+        pos = pos + 1;
+        index = index & 0x0ffff;
+        k = k - 1;
+      }
+    }
+
+    /*
     for (int position = 0; position < sequence.length - KmerUtils.K + 1; position++) {
 
       int index = kmer2int(sequence, position);
@@ -59,6 +91,7 @@ public class KmerUtils {
       }
       result[index].get(offset).add(position);
     }
+    */
   }
 
   private static int kmer2int(byte[] reads, int start) {
