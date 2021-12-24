@@ -1,21 +1,20 @@
-package cn.hjmao.primer;
+package cn.hjmao.primer.index.utils;
 
-import java.util.List;
-import java.util.Map;
+import cn.hjmao.primer.index.Indexer;
+import cn.hjmao.primer.io.Seq;
 
 public class IndexThread implements Runnable {
   private Seq seq;
-  private Map<Integer, List<Integer>>[] index;
+  private Indexer indexer;
 
-  public IndexThread(Seq seq, Map<Integer, List<Integer>>[] index) {
+  public IndexThread(Seq seq, Indexer indexer) {
     this.seq = seq;
-    this.index = index;
+    this.indexer = indexer;
   }
-
   @Override
   public void run() {
     // System.out.println("Going to processing the " + seq.getIndex() + " sequence [" + seq.getId() + "] with k = " + k + " ...");
-    KmerUtils.makeIndex(seq, index);
+    indexer.index(seq);
     System.out.println("Done processing the " + seq.getIndex() + " sequence [" + seq.getId() + "] ...");
   }
 }

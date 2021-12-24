@@ -1,4 +1,4 @@
-package cn.hjmao.primer;
+package cn.hjmao.primer.io;
 
 import lombok.Getter;
 import lombok.Setter;

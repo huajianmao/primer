@@ -6,8 +6,6 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
-import cn.hjmao.primer.Seq;
-
 public class Fasta {
   public static final int NEW_LINE_WIDTH = 1; // '\n'
   private static int CURRENT_POSITION = 0;
@@ -17,6 +15,7 @@ public class Fasta {
   }
 
   public static List<Seq> load(String filename, int limit) {
+    Fasta.CURRENT_POSITION = 0;
     List<Seq> sequences = new ArrayList<>();
 
     try {
@@ -58,13 +57,11 @@ public class Fasta {
       setReadsForLastSeq(sequences, sb);
       fr.close();
 
-      CURRENT_POSITION = 0;
       return sequences;
     } catch (Exception e) {
       e.printStackTrace();
     }
 
-    CURRENT_POSITION = 0;
     return null;
   }
 
@@ -120,5 +117,4 @@ public class Fasta {
 
     return new Seq(id, index, desc, CURRENT_POSITION);
   }
-
 }
