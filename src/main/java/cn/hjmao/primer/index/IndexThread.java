@@ -1,6 +1,5 @@
-package cn.hjmao.primer.index.utils;
+package cn.hjmao.primer.index;
 
-import cn.hjmao.primer.index.Indexer;
 import cn.hjmao.primer.io.Seq;
 
 public class IndexThread implements Runnable {
@@ -15,6 +14,6 @@ public class IndexThread implements Runnable {
   public void run() {
     // System.out.println("Going to processing the " + seq.getIndex() + " sequence [" + seq.getId() + "] with k = " + k + " ...");
     indexer.index(seq);
-    System.out.println("Done processing the " + seq.getIndex() + " sequence [" + seq.getId() + "] ...");
+    // System.out.println("Done processing the " + seq.getIndex() + " sequence [" + seq.getId() + "] ...");
   }
 }

@@ -24,4 +24,9 @@ public class ArrayIndexer extends Indexer {
     }
     return positions;
   }
+
+  @Override
+  public void save() {
+    // TODO Auto-generated method stub
+  }
 }

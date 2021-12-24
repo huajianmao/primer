@@ -32,4 +32,9 @@ public class MapIndexer extends Indexer {
     }
     return positions;
   }
+
+  @Override
+  public void save() {
+    // TODO Auto-generated method stub
+  }
 }

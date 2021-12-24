@@ -13,8 +13,8 @@ class Runner {
   public static void main(String[] args) {
     // String fasta = "./data/small.fasta";
     // String fasta = "./data/test.fasta";
-    // String fasta = "./data/GRCh38_latest_genomic.fasta";
-    String fasta = "./data/sequences2021.09.30.fasta";
+    String fasta = "./data/GRCh38_latest_genomic.fasta";
+    // String fasta = "./data/sequences2021.09.30.fasta";
 
     int processes = 25;
     int k = 9;
@@ -27,5 +27,8 @@ class Runner {
     // Indexer worker = new MapIndexer(sequences, k);
     Indexer worker = new MergedIndexer(sequences, k);
     worker.index(processes);
+    System.out.println("Going to save index ...");
+    worker.save();
+    System.out.println("Done saving index ...");
   }
 }

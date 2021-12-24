@@ -1,5 +1,8 @@
 package cn.hjmao.primer.index;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,5 +37,29 @@ public class MergedIndexer extends Indexer {
   @Override
   protected int calcPosition(int pos, int seqNo) {
     return pos + offsets[seqNo];
+  }
+
+  @Override
+  public void save() {
+    String outputFile = "/tmp/kmers/hjmao.bin";
+    int count = 0;
+
+    try (OutputStream outputStream = new FileOutputStream(outputFile);) {
+      for (int i = 0; i < index.length; i++) {
+        List<Integer> integers = index[i];
+        byte[] allBytes = new byte[integers.size() * 4];
+        count = count + integers.size();
+        for (int j = 0; j < integers.size(); j++) {
+          int integerTemp = integers.get(j);
+          for (int k = 0; k < 4; k++) {
+            allBytes[j * 4 + k] = (byte) ((integerTemp >> (8 * k)) & 0xFF);
+          }
+        }
+        outputStream.write(allBytes);
+        outputStream.write('\n');
+      }
+    } catch (IOException ioe) {
+      ioe.printStackTrace();
+    }
   }
 }

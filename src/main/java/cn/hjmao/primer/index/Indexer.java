@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import cn.hjmao.primer.index.utils.IndexThread;
 import cn.hjmao.primer.io.Seq;
 import lombok.Getter;
 
@@ -33,7 +32,9 @@ public abstract class Indexer {
     System.out.println("Done indexing.");
   }
 
-  public void index(Seq seq) {
+  public abstract void save();
+
+  protected void index(Seq seq) {
     byte[] sequence = seq.getReads();
     if (sequence.length < this.getK()) {
       return;
