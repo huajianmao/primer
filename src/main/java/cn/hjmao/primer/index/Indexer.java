@@ -57,12 +57,16 @@ public abstract class Indexer {
         }
       }
       if (k == this.getK()) {
-        this.getPositions(index, offset).add(pos);
+        this.getPositions(index, offset).add(calcPosition(pos, offset));
         pos = pos + 1;
         index = index & 0x0ffff;
         k = k - 1;
       }
     }
+  }
+
+  protected int calcPosition(int pos, int seqNo) {
+    return pos;
   }
 
   protected abstract List<Integer> getPositions(int kmer, int seqNo);
